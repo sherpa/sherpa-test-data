@@ -11,6 +11,7 @@ versioneer.parentdir_prefix = 'sherpatest-'
 setup(name='sherpatest',
       version=versioneer.get_version(),
       packages=['sherpatest'],
+      include_package_data=True,
       cmdclass=versioneer.get_cmdclass(),
       )
 
