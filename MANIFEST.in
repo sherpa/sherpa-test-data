@@ -1,0 +1,4 @@
+graft sherpatest
+
+include versioneer.py
+include sherpatest/_version.py
