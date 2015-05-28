@@ -1,0 +1,36 @@
+head	1.1;
+access;
+symbols;
+locks
+	brefsdal:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2010.01.15.15.06.32;	author brefsdal;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@from sherpa.astro.ui import *
+
+load_pha("bubble.pi")
+set_stat("cstat")
+notice(0.3,7)
+
+set_model(xsphabs.abs1*xsmekal.mek1)
+abs1.nh=0.056
+freeze(abs1)
+fit()
+proj()
+covar()
+@
