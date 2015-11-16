@@ -1,6 +1,6 @@
 from sherpa.astro.ui import *
 import sherpa.astro.ui as ui
-execfile("acis_bkg_model.py", locals())
+execfile("setfullmodel-acis_bkg_model.py", locals())
 
 ids = [1,2,3,4]
 

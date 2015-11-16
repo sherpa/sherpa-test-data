@@ -1,1 +1,0 @@
-../../threads/linepro/data.txt
