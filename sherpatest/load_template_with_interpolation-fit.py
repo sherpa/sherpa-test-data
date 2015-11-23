@@ -2,7 +2,7 @@
 
 import sherpa.ui as ui
 
-ui.load_data("default_interp", "bb_data.dat")
+ui.load_data("default_interp", "load_template_with_interpolation-bb_data.dat")
 ui.load_template_model('bb1', "bb_index.dat")
 ui.load_template_model('bb2', "bb_index.dat")
 ui.set_model("default_interp", bb1+bb2)
