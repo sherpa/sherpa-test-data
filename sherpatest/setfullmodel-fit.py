@@ -1,6 +1,8 @@
 from sherpa.astro.ui import *
 import sherpa.astro.ui as ui
-execfile("setfullmodel-acis_bkg_model.py", locals())
+with open("setfullmodel-acis_bkg_model.py", 'rb') as fh:
+    cts = fh.read()
+exec(compile(cts, "acis_bkg_model", "exec"), globals(), locals())
 
 ids = [1,2,3,4]
 
