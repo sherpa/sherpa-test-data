@@ -1,5 +1,3 @@
-import sherpa.astro.ui as ui
-
 pars = {}
 
 pars['acis0i'] = {
@@ -346,6 +344,9 @@ def acis_bkg_model(detnam, root='bkg_', as_str=False):
     :param detnam: detector name 'acis<CCD_ID><aimpoint det: i or s>'
     :returns: sherpa model for background
     """
+    from sherpa.astro import ui
+    global pars
+
     comps = (('powlaw1d', 'pow1'),
              ('powlaw1d', 'pow2'),
              ('gauss1d', 'g1'),
