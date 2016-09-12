@@ -1,4 +1,5 @@
 graft sherpatest
+graft recipes
 
 include versioneer.py
 include sherpatest/_version.py
