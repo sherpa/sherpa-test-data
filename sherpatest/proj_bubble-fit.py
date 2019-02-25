@@ -11,4 +11,5 @@ abs1.nh=0.056
 freeze(abs1)
 fit()
 proj()
+conf()
 covar()
