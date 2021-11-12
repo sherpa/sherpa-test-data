@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-
+#
+# This used to use coord=WCS but this is not
+# well supported, so has been changed back to
+# coord=physical.
+#
 from sherpa.astro.ui import *
 
 image_file = "acisf07999_000N001_r0035_regevt3_srcimg.fits"
@@ -15,7 +19,7 @@ set_coord(srcid, "physical")
 notice2d_id(srcid, reg_file)
 
 # Switch to WCS for fitting
-set_coord(srcid, "wcs")
+# set_coord(srcid, "wcs")  REMOVED
 
 # Use Nelder-Mead, C-statistic as fit method, statistic
 set_method("neldermead")
@@ -37,7 +41,7 @@ set_coord(srcid, "physical")
 notice2d_id(srcid, reg_file)
 
 # Switch to WCS for fitting
-set_coord(srcid, "wcs")
+# set_coord(srcid, "wcs")  REMOVED
 
 # Use Nelder-Mead, C-statistic as fit method, statistic
 set_method("neldermead")
