@@ -1,0 +1,250 @@
+Very basic XSPEC table models, manually created.
+
+The models all provide a single scaling parameter, lscale, that goes
+from 0 to 10 which linearly interpolates between two spectra (this
+means it's easy to work out what the expected signal is).
+
+The grid and model values (y1, y2) are
+
+    elo | 0.5  0.6  0.7  1.1  1.5  2.0  2.1
+    ehi | 0.6  0.7  1.1  1.5  2.0  2.1  2.2
+    y1  |   5   10   12   40   60   15    0
+    y2  |  10   20    0   40   80   40    4
+
+Values below 0.5 are meant to be set to 0 and those above to 5
+(although this depends on the XSPEC version, as prior to XSPEC 12.13.1
+the table-model support for external users of the XSPEC model library
+did not correctly handle this case).
+
+The model names are
+
+    smod<aflag><zflag><eflag>.mod
+
+where
+
+    aflag indicates if additive (1) or multiplicative (0)
+    zflag indicates if adds a redshift parameter (1) or not (0)
+    eflag indicates if adds an escale parameter (1) or not (0)
+
+At the time of writing (August 2023, XSPEC 12.13.1) it is not clear
+if setting both refshift and escale to true (1) is valid (as the
+results we get with them both set are not particularly useful).
+
+As an example, using the additive model with no extra parameters
+we have (this is for a version of Sherpa which has had issue #1850
+fixed, otherwise the lscale parameter will be marked as thawed):
+
+>>> import numpy as np
+>>> from sherpa.astro import xspec
+>>> from sherpa.astro import ui
+WARNING: imaging routines will not be available, 
+failed to import sherpa.image.ds9_backend due to 
+'RuntimeErr: DS9Win unusable: Could not find ds9 on your PATH'
+WARNING: Failed to import any usable sherpa.plotting backend. Plotting routines will not be available.
+>>> xspec.get_xsversion()
+'12.13.1'
+>>> ui.load_xstable_model("smod100", "smod100.tmod")
+>>> print(smod100)
+xstablemodel.smod100
+   Param        Type          Value          Min          Max      Units
+   -----        ----          -----          ---          ---      -----
+   smod100.lscale frozen            5            0           10           
+   smod100.norm thawed            1            0        1e+24           
+>>> egrid = np.linspace(0.2, 2.6, 25)
+>>> elo = egrid[:-1]; ehi = egrid[1:]
+>>> y = smod100(elo, ehi)
+>>> y
+array([ 0.       ,  0.       ,  0.       ,  7.5      , 15.       ,
+        1.5000002,  1.4999993,  1.5000002,  1.5000002, 10.000003 ,
+        9.999991 , 10.000003 , 10.000003 , 14.000004 , 14.000004 ,
+       13.999987 , 14.000004 , 14.000004 , 37.5      ,  2.       ,
+        0.       ,  0.       ,  0.       ,  0.       ], dtype=float32)
+>>> xmid = (elo + ehi) / 2
+>>> for z in zip(xmid, y / (ehi - elo)):
+...     print(z)
+... 
+(0.25, 0.0)
+(0.35, 0.0)
+(0.45, 0.0)
+(0.55, 75.00000000000001)
+(0.6499999999999999, 150.00000000000003)
+(0.75, 15.000002384185777)
+(0.85, 14.999992847442646)
+(0.95, 15.000002384185777)
+(1.0499999999999998, 15.00000238418581)
+(1.15, 100.0000286102294)
+(1.25, 99.99991416931165)
+(1.3499999999999999, 100.0000286102294)
+(1.4499999999999997, 100.00002861022962)
+(1.5499999999999998, 140.00003814697254)
+(1.65, 140.00003814697286)
+(1.7499999999999998, 139.9998664855956)
+(1.8499999999999999, 140.00003814697254)
+(1.9499999999999997, 140.00003814697286)
+(2.05, 374.9999999999988)
+(2.15, 20.00000000000007)
+(2.25, 0.0)
+(2.3499999999999996, 0.0)
+(2.45, 0.0)
+(2.55, 0.0)
+
+
+We can compare this to XSPEC:
+
+% xspec
+
+		XSPEC version: 12.13.1
+	Build Date/Time: Mon Jul 31 15:03:37 2023
+
+XSPEC12>dummyrsp 0.2 2.6 24 linear
+XSPEC12>mo atable{smod100.tmod}
+
+Input parameter value, delta, min, bot, top, and max values for ...
+              5      -0.01(      0.05)          0          0         10         10
+1:smod100:lscale>
+              1       0.01(      0.01)          0          0      1e+20      1e+24
+2:smod100:norm>
+
+========================================================================
+Model atable{smod100.tmod}<1> Source No.: 1   Active/Off
+Model Model Component  Parameter  Unit     Value
+ par  comp
+   1    1   smod100    lscale              5.00000      frozen
+   2    1   smod100    norm                1.00000      +/-  0.0          
+________________________________________________________________________
+
+XSPEC12>iplot model
+PLT> wdata
+READ SERR 1
+!
+0.25 5.00000007E-2 0
+0.349999994 5.00000007E-2 0
+0.449999988 5.00000007E-2 0
+0.550000012 5.00000007E-2 74.9999847
+0.649999976 5.00000007E-2 150.000031
+0.75 5.00000007E-2 14.999999
+0.850000024 5.00000007E-2 14.999999
+0.949999988 5.00000007E-2 14.999999
+1.04999995 5.00000007E-2 14.999999
+1.14999998 5.00000007E-2 100.000008
+1.25 5.00000007E-2 100.000008
+1.35000002 5.00000007E-2 100.000008
+1.45000005 5.00000007E-2 100.000008
+1.54999995 5.00000007E-2 140
+1.64999998 5.00000007E-2 140
+1.75 5.00000007E-2 140
+1.85000002 5.00000007E-2 140
+1.95000005 5.00000007E-2 140
+2.04999995 5.00000007E-2 375.000031
+2.1500001 5.00000007E-2 19.9999714
+2.25 5.00000007E-2 0
+2.3499999 5.00000007E-2 0
+2.45000005 5.00000007E-2 0
+2.54999995 5.00000007E-2 0
+PLT> 
+
+Although the numbers aren't quite the same (I assume this is down, in
+part, to different floating-point conversions in the code that XSPEC
+directly uses and those it provides access to for external users) you
+can see they are close enough.
+
+It is harder to check the XSPEC results for the multiplicative model,
+but we can check by applying it to a "flat" model (powerlaw with a
+photon index of 0):
+
+>>> ui.load_xstable_model("smod000", "../xspec_table_model/smod000.tmod")
+>>> print(smod000)
+xstablemodel.smod000
+   Param        Type          Value          Min          Max      Units
+   -----        ----          -----          ---          ---      -----
+   smod000.lscale frozen            5            0           10           
+>>> smod000(elo, ehi)
+array([ 0. ,  0. ,  0. ,  7.5, 15. ,  6. ,  6. ,  6. ,  6. , 40. , 40. ,
+       40. , 40. , 70. , 70. , 70. , 70. , 70. , 37.5,  2. ,  5. ,  5. ,
+        5. ,  5. ], dtype=float32)
+>>> y = smod000(elo, ehi)
+>>> for z in zip(xmid, y):
+...     print(z)
+... 
+(0.25, 0.0)
+(0.35, 0.0)
+(0.45, 0.0)
+(0.55, 7.5)
+(0.6499999999999999, 15.0)
+(0.75, 6.0)
+(0.85, 6.0)
+(0.95, 6.0)
+(1.0499999999999998, 6.0)
+(1.15, 40.0)
+(1.25, 40.0)
+(1.3499999999999999, 40.0)
+(1.4499999999999997, 40.0)
+(1.5499999999999998, 70.0)
+(1.65, 70.0)
+(1.7499999999999998, 70.0)
+(1.8499999999999999, 70.0)
+(1.9499999999999997, 70.0)
+(2.05, 37.5)
+(2.15, 2.0)
+(2.25, 5.0)
+(2.3499999999999996, 5.0)
+(2.45, 5.0)
+(2.55, 5.0)
+
+which can be compared to
+
+% xspec
+
+		XSPEC version: 12.13.1
+	Build Date/Time: Mon Jul 31 15:03:37 2023
+
+XSPEC12>dummyrsp 0.2 2.6 24 linear
+XSPEC12>mo mtable{smod000.tmod} * powerlaw
+
+Input parameter value, delta, min, bot, top, and max values for ...
+              5      -0.01(      0.05)          0          0         10         10
+1:smod000:lscale>
+              1       0.01(      0.01)         -3         -2          9         10
+2:powerlaw:PhoIndex>0
+              1       0.01(      0.01)          0          0      1e+20      1e+24
+3:powerlaw:norm>
+
+========================================================================
+Model mtable{smod000.tmod}<1>*powerlaw<2> Source No.: 1   Active/Off
+Model Model Component  Parameter  Unit     Value
+ par  comp
+   1    1   smod000    lscale              5.00000      frozen
+   2    2   powerlaw   PhoIndex            0.0          +/-  0.0          
+   3    2   powerlaw   norm                1.00000      +/-  0.0          
+________________________________________________________________________
+
+XSPEC12>iplot model
+PLT> wdata
+READ SERR 1
+!
+0.25 5.00000007E-2 0
+0.349999994 5.00000007E-2 0
+0.449999988 5.00000007E-2 0
+0.550000012 5.00000007E-2 7.5
+0.649999976 5.00000007E-2 15
+0.75 5.00000007E-2 6
+0.850000024 5.00000007E-2 6
+0.949999988 5.00000007E-2 6
+1.04999995 5.00000007E-2 6
+1.14999998 5.00000007E-2 40
+1.25 5.00000007E-2 40
+1.35000002 5.00000007E-2 40
+1.45000005 5.00000007E-2 40
+1.54999995 5.00000007E-2 70
+1.64999998 5.00000007E-2 70
+1.75 5.00000007E-2 70
+1.85000002 5.00000007E-2 70
+1.95000005 5.00000007E-2 70
+2.04999995 5.00000007E-2 37.4999657
+2.1500001 5.00000007E-2 2
+2.25 5.00000007E-2 5
+2.3499999 5.00000007E-2 5
+2.45000005 5.00000007E-2 5
+2.54999995 5.00000007E-2 5
+PLT> 
+
