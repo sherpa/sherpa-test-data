@@ -1,0 +1,8 @@
+Example Chandra HRC-I (imaging mode) spectrum and response
+
+This data was retrieved from the development version of version 2.1 of
+the Chandra Source Catalog. It is only used to check we can read the
+data in correctly, so the fact that it may change slightly by the time
+the CSC 2.1 release is finalized is not really an issue. Hopefully.
+
+It was added for issue https://github.com/sherpa/sherpa/issues/1830
